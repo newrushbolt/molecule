@@ -116,6 +116,7 @@ def test_env(config_instance: config.Config):
     assert isinstance(env_file, str)
     x = {
         "MOLECULE_DEBUG": "False",
+        "MOLECULE_IGNORE_X_VARS": "False",
         "MOLECULE_FILE": config_instance.config_file,
         "MOLECULE_ENV_FILE": util.abs_path(env_file),
         "MOLECULE_INVENTORY_FILE": config_instance.provisioner.inventory_file,
