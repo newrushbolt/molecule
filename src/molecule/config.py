@@ -114,6 +114,7 @@ class Config(metaclass=NewInitCaller):
         self._action = None
         self._run_uuid = str(uuid4())
         self.project_directory = os.getenv("MOLECULE_PROJECT_DIRECTORY", os.getcwd())
+        self.ignore_config_x_vars = bool(os.getenv("MOLECULE_IGNORE_X_VARS", "false"))
         self.runtime = app.runtime
         self.scenario_path = Path(molecule_file).parent
 
@@ -461,9 +462,20 @@ class Config(metaclass=NewInitCaller):
             },
         }
 
+    def _remove_config_x_args(self):
+        x_args = [key for key in self.config if key.startswith('.x-')]
+        for arg in x_args:
+            self.config.pop(arg)
+        return
+
     def _validate(self):
         msg = f"Validating schema {self.molecule_file}."
         LOG.debug(msg)
+
+        if self.ignore_config_x_vars:
+            msg = "Removing all variables starting with '.x-' from config beacause MOLECULE_IGNORE_X_VARS==true"
+            LOG.debug(msg)
+            self._remove_config_x_args()
 
         errors = schema_v3.validate(self.config)
         if errors:
